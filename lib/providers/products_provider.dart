@@ -51,10 +51,19 @@ class ProductsProvider with ChangeNotifier {
 
   void addProduct(Product product) {
     final Product newProduct = product.copyWith(
-      id: DateTime.now().toString(),
-    );
+        id: DateTime.now().toString(), isFavorite: product.isFavorite);
     _items.add(newProduct);
     // _items.insert(0, newProduct);
     notifyListeners();
+  }
+
+  void updateProduct(String id, Product newProduct) {
+    final prodIndex = _items.indexWhere((prod) => prod.id == id);
+    if (prodIndex >= 0) {
+      _items[prodIndex] = newProduct;
+      notifyListeners();
+    } else {
+      print('...');
+    }
   }
 }

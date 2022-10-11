@@ -28,7 +28,7 @@ class Product with ChangeNotifier {
     String? description,
     double? price,
     String? imageUrl,
-    bool? isFavorite,
+    required bool isFavorite,
   }) =>
       Product(
         id: id ?? this.id,
@@ -36,5 +36,6 @@ class Product with ChangeNotifier {
         description: description ?? this.description,
         price: price ?? this.price,
         imageUrl: imageUrl ?? this.imageUrl,
+        isFavorite: isFavorite,
       );
 }
