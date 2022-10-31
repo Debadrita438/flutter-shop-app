@@ -90,10 +90,25 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _form.currentState!.save();
     setState(() => _isLoading = true);
     if (_editedProduct.id != '') {
-      Provider.of<ProductsProvider>(context, listen: false)
-          .updateProduct(_editedProduct.id, _editedProduct);
-      setState(() => _isLoading = false);
-      Navigator.of(context).pop();
+      try {
+        await Provider.of<ProductsProvider>(context, listen: false)
+            .updateProduct(_editedProduct.id, _editedProduct);
+      } catch (error) {
+        await showDialog<Null>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('An error occured!'),
+            content:
+                const Text('Something went wrong, please try again later!'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Okay'),
+              ),
+            ],
+          ),
+        );
+      }
     } else {
       try {
         await Provider.of<ProductsProvider>(context, listen: false)
@@ -113,11 +128,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
             ],
           ),
         );
-      } finally {
-        setState(() => _isLoading = false);
-        Navigator.of(context).pop();
       }
     }
+    setState(() => _isLoading = false);
+    Navigator.of(context).pop();
   }
 
   @override
