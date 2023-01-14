@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
@@ -18,7 +19,8 @@ class OrderProvider with ChangeNotifier {
   Future<void> addOrders(List<CartItem> cartProducts, double total) async {
     final url = Uri.https(
         'flutter-shop-app-c5411-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/orders.json');
+        '/orders.json',
+        {'auth': '$authToken'});
     final timeStamp = DateTime.now();
     final response = await http.post(
       url,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,13 +20,14 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  Future<void> toggleFavoriteStatus() async {
+  Future<void> toggleFavoriteStatus(String token) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
     final url = Uri.https(
         'flutter-shop-app-c5411-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/products/$id.json');
+        '/products/$id.json',
+        {'auth': token});
     try {
       final response = await http.patch(
         url,

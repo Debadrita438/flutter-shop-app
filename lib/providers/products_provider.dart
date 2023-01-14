@@ -59,6 +59,7 @@ class ProductsProvider with ChangeNotifier {
         {'auth': '$authToken'});
     try {
       final response = await http.get(url);
+      final favoriteData = json.decode(response.body) as Map<String, dynamic>;
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
       extractedData.forEach((prodId, prodData) {
@@ -69,6 +70,7 @@ class ProductsProvider with ChangeNotifier {
             description: prodData['description'],
             price: prodData['price'],
             imageUrl: prodData['imageUrl'],
+            isFavorite: prodData['isFavorite'] ?? false,
           ),
         );
       });
