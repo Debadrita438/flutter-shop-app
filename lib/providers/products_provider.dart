@@ -8,8 +8,9 @@ import './product_provider.dart';
 class ProductsProvider with ChangeNotifier {
   List<Product> _items = [];
   final String? authToken;
+  final String userId;
 
-  ProductsProvider(this.authToken, this._items);
+  ProductsProvider(this.authToken, this.userId, this._items);
 
   List<Product> get items {
     return [..._items];
@@ -53,14 +54,22 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> fetchProducts() async {
-    final url = Uri.https(
+    var url = Uri.https(
         'flutter-shop-app-c5411-default-rtdb.asia-southeast1.firebasedatabase.app',
         '/products.json',
         {'auth': '$authToken'});
     try {
       final response = await http.get(url);
-      final favoriteData = json.decode(response.body) as Map<String, dynamic>;
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      if (extractedData == null) {
+        return;
+      }
+      url = Uri.https(
+          'flutter-shop-app-c5411-default-rtdb.asia-southeast1.firebasedatabase.app',
+          '/userFavorites/$userId.json',
+          {'auth': '$authToken'});
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
       final List<Product> loadedProducts = [];
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(
@@ -70,7 +79,8 @@ class ProductsProvider with ChangeNotifier {
             description: prodData['description'],
             price: prodData['price'],
             imageUrl: prodData['imageUrl'],
-            isFavorite: prodData['isFavorite'] ?? false,
+            isFavorite:
+                favoriteData == null ? false : favoriteData[prodId] ?? false,
           ),
         );
       });
