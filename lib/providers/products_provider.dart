@@ -37,7 +37,8 @@ class ProductsProvider with ChangeNotifier {
           'description': product.description,
           'imageUrl': product.imageUrl,
           'price': product.price,
-          'isFavorite': product.isFavorite
+          'isFavorite': product.isFavorite,
+          'creatorId': userId
         }),
       );
 
@@ -53,11 +54,23 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchProducts() async {
+  Future<void> fetchProducts([bool filterByUser = false]) async {
+    var _params;
+    if (filterByUser) {
+      _params = <String, String>{
+        'auth': '$authToken',
+        'orderBy': '"creatorId"',
+        'equalTo': '"$userId"'
+      };
+    } else {
+      _params = <String, String>{
+        'auth': '$authToken',
+      };
+    }
     var url = Uri.https(
         'flutter-shop-app-c5411-default-rtdb.asia-southeast1.firebasedatabase.app',
         '/products.json',
-        {'auth': '$authToken'});
+        _params);
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;

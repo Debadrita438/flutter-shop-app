@@ -12,13 +12,14 @@ class UserProductsScreen extends StatelessWidget {
   const UserProductsScreen({super.key});
 
   Future<void> _refreshProducts(BuildContext context) async {
-    await Provider.of<ProductsProvider>(context, listen: false).fetchProducts();
+    await Provider.of<ProductsProvider>(context, listen: false)
+        .fetchProducts(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final products = Provider.of<ProductsProvider>(context);
-    final productsData = products.items;
+    // final products = Provider.of<ProductsProvider>(context);
+    // final productsData = products.items;
 
     return Scaffold(
       appBar: AppBar(
@@ -36,24 +37,34 @@ class UserProductsScreen extends StatelessWidget {
         ],
       ),
       drawer: AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshProducts(context),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: ListView.builder(
-            itemBuilder: (ctx, i) => Column(
-              children: [
-                UserProductsItem(
-                  id: productsData[i].id,
-                  title: productsData[i].title,
-                  imageUrl: productsData[i].imageUrl,
-                ),
-                const Divider(),
-              ],
-            ),
-            itemCount: productsData.length,
-          ),
-        ),
+      body: FutureBuilder(
+        future: _refreshProducts(context),
+        builder: (ctx, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () => _refreshProducts(context),
+                    child: Consumer<ProductsProvider>(
+                      builder: (ctx, productsData, _) => Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: ListView.builder(
+                          itemBuilder: (ctx, i) => Column(
+                            children: [
+                              UserProductsItem(
+                                id: productsData.items[i].id,
+                                title: productsData.items[i].title,
+                                imageUrl: productsData.items[i].imageUrl,
+                              ),
+                              const Divider(),
+                            ],
+                          ),
+                          itemCount: productsData.items.length,
+                        ),
+                      ),
+                    ),
+                  ),
       ),
     );
   }
