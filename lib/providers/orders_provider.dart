@@ -9,8 +9,9 @@ import '../models/order_item.dart';
 class OrderProvider with ChangeNotifier {
   List<OrderItem> _orders = [];
   final String? authToken;
+  final String userId;
 
-  OrderProvider(this.authToken, this._orders);
+  OrderProvider(this.authToken, this.userId, this._orders);
 
   List<OrderItem> get orders {
     return [..._orders];
@@ -19,7 +20,7 @@ class OrderProvider with ChangeNotifier {
   Future<void> addOrders(List<CartItem> cartProducts, double total) async {
     final url = Uri.https(
         'flutter-shop-app-c5411-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/orders.json',
+        '/orders/$userId.json',
         {'auth': '$authToken'});
     final timeStamp = DateTime.now();
     final response = await http.post(
@@ -52,7 +53,7 @@ class OrderProvider with ChangeNotifier {
   Future<void> fetchOrders() async {
     final url = Uri.https(
         'flutter-shop-app-c5411-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/orders.json',
+        '/orders/$userId.json',
         {'auth': '$authToken'});
     final response = await http.get(url);
     final extractedData = json.decode(response.body);

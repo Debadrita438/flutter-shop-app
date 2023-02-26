@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_shop_app/screens/products_overview_screen.dart';
 import 'package:provider/provider.dart';
 
+import './screens/products_overview_screen.dart';
+import './screens/splash_screen.dart';
 import './screens/cart_screen.dart';
 import './providers/cart_provider.dart';
 import './screens/product_detail_screen.dart';
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
             create: (_) => ProductsProvider(null, '', []),
             update: (ctx, auth, prevProducts) => ProductsProvider(
-              auth.token!,
+              auth.token ?? '',
               auth.userId,
               prevProducts == null ? [] : prevProducts.items,
             ),
@@ -40,9 +41,10 @@ class MyApp extends StatelessWidget {
             create: (ctx) => CartProvider(),
           ),
           ChangeNotifierProxyProvider<AuthProvider, OrderProvider>(
-            create: (_) => OrderProvider(null, []),
+            create: (_) => OrderProvider(null, '', []),
             update: (ctx, auth, prevOrders) => OrderProvider(
-              auth.token,
+              auth.token!,
+              auth.userId,
               prevOrders == null ? [] : prevOrders.orders,
             ),
           ),
@@ -57,7 +59,16 @@ class MyApp extends StatelessWidget {
               ),
               fontFamily: 'Lato',
             ),
-            home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            home: auth.isAuth
+                ? ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (ctx, authResultSnapshot) =>
+                        authResultSnapshot.connectionState ==
+                                ConnectionState.waiting
+                            ? SplashScreen()
+                            : AuthScreen(),
+                  ),
             routes: {
               ProductDetailScreen.routeName: (ctx) =>
                   const ProductDetailScreen(),
